@@ -3,6 +3,12 @@ description: Utilized for creating releases of projects
 
 # Inputs
 inputs:
+  organization_name:
+    description: "Current Organization Name"
+    required: true
+  repository_name:
+    description: "Current Repository Name"
+    required: true
   branch_name: 
     description: "Current Branch"
     required: true
@@ -33,6 +39,9 @@ inputs:
     required: true
   ossrh_token:
     description: "OSSRH Token"
+    required: true
+  sonarqube_project_key:
+    description: "SonarQube Project Key"
     required: true
   
 
@@ -128,6 +137,22 @@ runs:
           -DnewVersion=${{steps.splitCurrentVersion.outputs._0}} \
           -DgenerateBackupPoms=false
 
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Analyze Code
+      if: github.repository == '${inputs.organization_name}/${inputs.repository_name}'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${sonarqube_project_key}
+
     - name: Build Release Version
       shell: bash
       run: |
@@ -148,8 +173,6 @@ runs:
            git commit -m 'Release ${{steps.splitCurrentVersion.outputs._0}}'
            git tag -a ${{steps.splitCurrentVersion.outputs._0}} -m '${{steps.splitCurrentVersion.outputs._0}}' --force
     
-    
-
     - name: Set Dev Version
       shell: bash
       run: |
@@ -195,6 +218,15 @@ runs:
           -e \
           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -PcodeQuality
+
+    - name: Analyze Code
+      if: github.repository == '${inputs.organization_name}/${inputs.repository_name}'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${sonarqube_project_key}
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
