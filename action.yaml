@@ -55,16 +55,13 @@ runs:
         gpg-private-key: ${{ inputs.gpg_key }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-    - name: Cat settings.xml
-      shell: bash
-      run: |
-          cat ~/.m2/settings.xml
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
 
-    - name: List Secret Keys
-      shell: bash
-      run: |
-        gpg --list-secret-keys
-      
     - name: Extract Version
       id: get_current_version
       shell: bash
