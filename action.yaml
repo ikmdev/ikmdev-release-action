@@ -175,7 +175,7 @@ runs:
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
       run: |
-          ./mvnw deploy \
+          ./mvnw deploy -U\
               --batch-mode \
               -e \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
