@@ -186,8 +186,6 @@ runs:
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
               -DskipTests \
               -DskipITs \
-              -Dmaven.main.skip \
-              -Dmaven.test.skip \
               -DskipStaging='false' \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
