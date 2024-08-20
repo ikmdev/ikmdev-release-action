@@ -188,6 +188,7 @@ runs:
               -DskipITs \
               -Dmaven.main.skip \
               -Dmaven.test.skip \
+              -DskipStaging='false' \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
               -PstageOSSRH
