@@ -52,6 +52,10 @@ runs:
     #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
     #     restore-keys: ${{ runner.os }}-m2
 
+    - name: Purge Dep
+      shell: bash
+      run: ./mvnw dependency:purge-local-repository
+
     - name: Extract Version
       id: get_current_version
       shell: bash
