@@ -45,13 +45,6 @@ runs:
         gpg-private-key: ${{ inputs.gpg_key }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-maven-
-
     - name: Extract Version
       id: get_current_version
       shell: bash
