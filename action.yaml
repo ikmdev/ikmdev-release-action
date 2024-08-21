@@ -104,6 +104,7 @@ runs:
       run: |
           ./mvnw \
           --batch-mode \
+          -U \
           versions:set \
           -DnewVersion=${{steps.splitCurrentVersion.outputs._0}} \
           -DgenerateBackupPoms=false \
@@ -169,6 +170,7 @@ runs:
           ./mvnw deploy -U\
               --batch-mode \
               -e \
+              -U \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
               -DskipTests \
               -DskipITs \
