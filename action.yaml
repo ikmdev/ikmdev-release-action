@@ -113,7 +113,8 @@ runs:
           --batch-mode \
           versions:set \
           -DnewVersion=${{steps.splitCurrentVersion.outputs._0}} \
-          -DgenerateBackupPoms=false
+          -DgenerateBackupPoms=false \
+          -Dmaven.build.cache.enabled=false
 
     - name: Build Release Version
       shell: bash
@@ -122,7 +123,8 @@ runs:
                 --batch-mode \
                 -e \
                 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-                -PcodeQuality,release-enforcement
+                -PcodeQuality,release-enforcement \
+                -Dmaven.build.cache.enabled=false
 
     - name: Create tag
       shell: bash
@@ -181,7 +183,8 @@ runs:
               -Dmaven.test.skip \
               -DrepositoryId=ossrh \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH
+              -PstageOSSRH \
+              -Dmaven.build.cache.enabled=false
       env:
         MAVEN_USERNAME: ${{ inputs.ossrh_username }}
         MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
