@@ -24,6 +24,11 @@ inputs:
   ossrh_token:
     description: "OSSRH Token"
     required: true
+
+outputs:
+  release_version:
+    description: "Release version"
+    value: ${{ steps.splitCurrentVersion.outputs._0 }}
   
 
 runs:
