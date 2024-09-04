@@ -24,6 +24,11 @@ inputs:
   ossrh_token:
     description: "OSSRH Token"
     required: true
+
+outputs:
+  release_version:
+    description: "Release version"
+    value: ${{ steps.splitCurrentVersion.outputs._0 }}
   
 
 runs:
@@ -44,14 +49,6 @@ runs:
         server-password: MAVEN_CENTRAL_TOKEN
         gpg-private-key: ${{ inputs.gpg_key }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
-
-    # - name: Cache Maven packages
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: ~/.m2
-    #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-    #     restore-keys: ${{ runner.os }}-m2
-
 
     - name: Extract Version
       id: get_current_version
@@ -112,9 +109,11 @@ runs:
       run: |
           ./mvnw \
           --batch-mode \
+          -U \
           versions:set \
           -DnewVersion=${{steps.splitCurrentVersion.outputs._0}} \
-          -DgenerateBackupPoms=false
+          -DgenerateBackupPoms=false \
+          -Dmaven.build.cache.enabled=false
 
     - name: Build Release Version
       shell: bash
@@ -123,7 +122,8 @@ runs:
                 --batch-mode \
                 -e \
                 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-                -PcodeQuality,release-enforcement
+                -PcodeQuality,release-enforcement \
+                -Dmaven.build.cache.enabled=false
 
     - name: Create tag
       shell: bash
@@ -164,37 +164,37 @@ runs:
            https://api.github.com/repos/${{github.repository}}/releases \
           -d '{"tag_name":"${{steps.splitCurrentVersion.outputs._0}}","name":"Release ${{steps.splitCurrentVersion.outputs._0}}","body":"Release ${{steps.splitCurrentVersion.outputs._0}}","draft":false,"prerelease":false,"generate_release_notes":false}'
 
-    # - name: Checkout Code Repository
-    #   uses: actions/checkout@v4
-    #   with:
-    #       ref: ${{steps.splitCurrentVersion.outputs._0}}
-    #       server-id: maven-releases
-    #       server-username: OSSRH_USERNAME
-    #       server-password: OSSRH_PASSWORD
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{steps.splitCurrentVersion.outputs._0}}
 
-   
     - name: Maven Build
       shell: bash
       run: |
-        ./mvnw clean install \
-          --batch-mode \
-          -e \
-          -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-          -PcodeQuality
+       ./mvnw clean install -U \
+        --batch-mode \
+        -e \
+        -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+        -Dmaven.build.cache.enabled=false \
+        -PcodeQuality
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
       run: |
-          ./mvnw deploy \
+          ./mvnw deploy -U\
               --batch-mode \
               -e \
+              -U \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
               -DskipTests \
               -DskipITs \
-              -DskipStaging=false \
-              -DrepositoryId='maven-releases' \
+              -Dmaven.main.skip \
+              -Dmaven.test.skip \
+              -DrepositoryId=ossrh \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH
+              -PstageOSSRH \
+              -Dmaven.build.cache.enabled=false
       env:
         MAVEN_USERNAME: ${{ inputs.ossrh_username }}
         MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
