@@ -91,8 +91,8 @@ runs:
       id: nextSnapshotVersion
       shell: bash
       run: |
-        SnapshotVersion="${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT"
-        echo "::set-output name=SnapshotVersion::$SnapshotVersion"
+         echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT" >> $GITHUB_OUTPUT
+
 
     - name: Print Information
       shell: bash
