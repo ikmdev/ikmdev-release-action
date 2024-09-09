@@ -108,8 +108,8 @@ runs:
       id: nextSnapshotVersion
       shell: bash
       run: |
-        SnapshotVersion="${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT"
-        echo "::set-output name=SnapshotVersion::$SnapshotVersion"
+         echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT" >> $GITHUB_OUTPUT
+
 
     - name: Print Information
       shell: bash
@@ -184,58 +184,4 @@ runs:
            https://api.github.com/repos/${{github.repository}}/releases \
           -d '{"tag_name":"${{steps.splitCurrentVersion.outputs._0}}","name":"Release ${{steps.splitCurrentVersion.outputs._0}}","body":"Release ${{steps.splitCurrentVersion.outputs._0}}","draft":false,"prerelease":false,"generate_release_notes":false}'
 
-    # - name: Checkout Code Repository
-    #   uses: actions/checkout@v4
-    #   with:
-    #     ref: ${{steps.splitCurrentVersion.outputs._0}}
-
-    # - name: Build Protoc Docker container
-    #   uses: docker/build-push-action@v6
-    #   with:
-    #     push: false
-    #     context: .
-    #     file: protoc.dockerfile
-    #     tags: tinkar-schema-protoc:latest
-
-
-    # - name: Generate Java Code
-    #   shell: bash
-    #   run: |
-    #    sudo docker run -v ./src/main/java-generated:/home/proto-builder/src/main/java-generated --rm tinkar-schema-protoc:latest
-      
-    # - name: list java code
-    #   shell: bash
-    #   run: |
-    #     ls src/main/java-generated
-
-    # - name: Maven Build
-    #   shell: bash
-    #   run: |
-    #    ./mvnw clean install -U \
-    #     --batch-mode \
-    #     -e \
-    #     -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-    #     -Dmaven.build.cache.enabled=false \
-    #     -PcodeQuality
-
-    # - name: Publish To OSSRH (Maven Central Staging)
-    #   shell: bash
-    #   run: |
-    #       ./mvnw deploy -U\
-    #           --batch-mode \
-    #           -e \
-    #           -U \
-    #           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-    #           -DskipTests \
-    #           -DskipITs \
-    #           -Dmaven.main.skip \
-    #           -Dmaven.test.skip \
-    #           -DrepositoryId=ossrh \
-    #           -DrepositoryIdOSSRH='true' \
-    #           -PstageOSSRH \
-    #           -Dmaven.build.cache.enabled=false
-    #   env:
-    #     MAVEN_USERNAME: ${{ inputs.ossrh_username }}
-    #     MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
-    #     MAVEN_GPG_PASSPHRASE: ${{ inputs.gpg_passphrase }}
 
