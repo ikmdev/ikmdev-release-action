@@ -1,6 +1,6 @@
 # Title
 
-This runs standard maven build installs with standard flags used by the IKMDev team.
+This runs standard maven release installs with standard flags used by the IKMDev team.
 
 ### Team Ownership - Product Owner
 
@@ -8,25 +8,36 @@ Automation Team
 
 ## How to Use
 
-Create a build in the `.github/workflows` folder, as described in the 
+Create a new release in the `.github/workflows` folder, as described in the 
 [GitHub Documentation](https://docs.github.com/en/actions/writing-workflows/quickstart).  Add the following code, 
 or something like it:
 
 ```yaml
 env:
-  MAVEN_SETTING: '/home/ec2-user/maven/.m2/settings.xml'
   BRANCH_NAME: ${{github.ref_name}}
+  TRUNK_BRANCH_NAME: 'main'
 
 jobs:
-  build-job:
-    name: Build Job
+  release:
+    name: Release
     runs-on: ubuntu-24.04
     if: github.repository_owner == 'ikmdev'
     steps:
-          - name: Build IKMDEV Code
-            uses: ikmdev/maven-promote-action@main
-            with:
-              branch_name: ${{env.BRANCH_NAME}}
+      - name: Verify Branch
+        if: env.BRANCH_NAME != env.TRUNK_BRANCH_NAME
+        run: |
+          echo "ERROR: Attempting to release from branch ${{env.BRANCH_NAME}}. Release from ${{env.TRUNK_BRANCH_NAME}} branch only"
+          exit 1
+
+      - name: Release IKMDEV Code
+        uses: ikmdev/maven-release-action@main
+        with:
+          ikmdevops_pat: ${{secrets.IKMDEVOPS_PAT_TOKEN}}
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          ossrh_username: ${{secrets.OSSRH_TOKEN_USER}}
+          ossrh_token: ${{secrets.OSSRH_TOKEN_PASS}}
+          gpg_key: ${{secrets.GPG_KEY}}
+          gpg_passphrase: ${{secrets.GPG_PASSPHRASE}}
 ```
 
 ## Issues and Contributions
