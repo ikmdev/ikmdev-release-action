@@ -188,13 +188,13 @@ runs:
 
     - name: Checkout Code Repository
       uses: actions/checkout@v4
-      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet_test'
+      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet'
       with:
         ref: ${{steps.splitCurrentVersion.outputs._0}}
 
     - name: Maven Build
       shell: bash
-      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet_test'
+      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet'
       run: |
        ./mvnw clean install -U \
         --batch-mode \
@@ -205,7 +205,7 @@ runs:
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
-      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet_test'
+      if: github.event.repository.name != 'tinkar-schema' && github.event.repository.name != 'komet'
       run: |
           ./mvnw deploy -U\
               --batch-mode \
