@@ -105,8 +105,11 @@ runs:
       id: nextSnapshotVersion
       shell: bash
       run: |
-         echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT" >> $GITHUB_OUTPUT
-
+         if [[ $REPO != 'owlapi']]; then
+          echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT" >> $GITHUB_OUTPUT
+         else 
+          echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.${{steps.splitVersionMinor.outputs._1}}.$((${{steps.splitVersionMinor.outputs._2}} + 1))-SNAPSHOT" >> $GITHUB_OUTPUT
+         fi
 
     - name: Print Information
       shell: bash
@@ -183,13 +186,13 @@ runs:
 
     - name: Checkout Code Repository
       uses: actions/checkout@v4
-      if: ${{github.event.repository.name}} != 'tinkar-schema' && ${{github.event.repository.name}} != 'komet'
+      if: ${{github.event.repository.name}} != 'tinkar-schema' || ${{github.event.repository.name}} != 'komet'
       with:
         ref: ${{steps.splitCurrentVersion.outputs._0}}
 
     - name: Maven Build
       shell: bash
-      if: ${{github.event.repository.name}} != 'tinkar-schema' && ${{github.event.repository.name}} != 'komet'
+      if: ${{github.event.repository.name}} != 'tinkar-schema' || ${{github.event.repository.name}} != 'komet'
       run: |
        ./mvnw clean install -U \
         --batch-mode \
@@ -200,7 +203,7 @@ runs:
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
-      if: ${{github.event.repository.name}} != 'tinkar-schema' && ${{github.event.repository.name}} != 'komet'
+      if: ${{github.event.repository.name}} != 'tinkar-schema' || ${{github.event.repository.name}} != 'komet'
       run: |
           ./mvnw deploy -U\
               --batch-mode \
