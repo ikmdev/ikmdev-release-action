@@ -47,7 +47,7 @@ runs:
 
     - name: Build Protoc Docker container
       uses: docker/build-push-action@v6
-      if: ${{github.event.repository.name}} == 'tinkar-schema'
+      if: github.event.repository.name == 'tinkar-schema'
       with:
         push: false
         context: .
@@ -56,13 +56,13 @@ runs:
   
   
     - name: Generate Java Code
-      if: ${{github.event.repository.name}} == 'tinkar-schema'
+      if: github.event.repository.name == 'tinkar-schema'
       shell: bash
       run: |
         sudo docker run -v ./src/main/java-generated:/home/proto-builder/src/main/java-generated --rm tinkar-schema-protoc:latest
         
     - name: list java code
-      if: ${{github.event.repository.name}} == 'tinkar-schema'
+      if: github.event.repository.name == 'tinkar-schema'
       shell: bash
       run: |
         ls src/main/java-generated
